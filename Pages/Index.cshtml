@@ -1,12 +1,476 @@
-﻿@page
-@model IndexModel
-@{    
-    ViewData["Title"] = "Home page";
-}
+// One-page website for a regional technology consulting company specializing in Snowflake implementations
+// TailwindCSS only. No external UI libs required.
+// Quick customization: edit the constants below.
 
-<div class="text-center">
-    <h1 class="display-4">Hello World from .NET 8</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    <hr />
-    <div>Host operating system: @Model.OSVersion</div>
-</div>
+const COMPANY_NAME = "Summit Data Consulting"; // ← your company name
+const REGION = "Serving the [Your Region]"; // ← e.g., "Serving the Southeast"
+const CONTACT_EMAIL = "hello@yourcompany.com";
+const CONTACT_PHONE = "(555) 123-4567";
+const CTA_BOOK_LINK = "#contact"; // could be Calendly/HubSpot link
+
+// --- Simple SVG Icons ---
+const Icon = {
+  Cloud: (props) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
+      <path d="M20 17.5a4.5 4.5 0 0 0-2.4-8.3 6 6 0 0 0-11.5 1.9A4.5 4.5 0 0 0 6 21h11.5A4.5 4.5 0 0 0 20 17.5z" />
+    </svg>
+  ),
+  Database: (props) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
+      <ellipse cx="12" cy="5" rx="8" ry="3" />
+      <path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5" />
+      <path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6" />
+    </svg>
+  ),
+  Shield: (props) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
+      <path d="M12 3l8 3v6c0 5-3.5 8.9-8 10-4.5-1.1-8-5-8-10V6l8-3z" />
+      <path d="M9.5 12.5l2 2 3.5-3.5" />
+    </svg>
+  ),
+  Spark: (props) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
+      <path d="M12 2v8M12 14v8M2 12h8M14 12h8" />
+      <path d="M5 5l5 5M14 14l5 5M5 19l5-5M14 10l5-5" />
+    </svg>
+  ),
+  ArrowRight: (props) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
+      <path d="M5 12h14M13 5l7 7-7 7" />
+    </svg>
+  ),
+  Check: (props) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
+      <path d="M20 6L9 17l-5-5" />
+    </svg>
+  ),
+};
+
+// --- Reusable Bits ---
+const Container = ({ children, className = "" }) => (
+  <div className={`mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 ${className}`}>{children}</div>
+);
+
+const SectionTitle = ({ eyebrow, title, subtitle }) => (
+  <div className="mb-10 text-center">
+    {eyebrow && (
+      <div className="mb-2 inline-block rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-sky-700">
+        {eyebrow}
+      </div>
+    )}
+    <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">{title}</h2>
+    {subtitle && <p className="mx-auto mt-3 max-w-2xl text-slate-600">{subtitle}</p>}
+  </div>
+);
+
+const Badge = ({ children }) => (
+  <span className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 text-xs font-medium text-slate-700 shadow-sm ring-1 ring-slate-200 backdrop-blur">
+    {children}
+  </span>
+);
+
+const Card = ({ children, className = "" }) => (
+  <div className={`rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md ${className}`}>
+    {children}
+  </div>
+);
+
+const Stat = ({ value, label }) => (
+  <div className="rounded-2xl bg-slate-50 p-4 text-center">
+    <div className="text-2xl font-semibold text-slate-900">{value}</div>
+    <div className="text-xs text-slate-600">{label}</div>
+  </div>
+);
+
+const NavLink = ({ href, children }) => (
+  <a href={href} className="text-sm font-medium text-slate-700 hover:text-sky-700">
+    {children}
+  </a>
+);
+
+// --- Main Page ---
+export default function Website() {
+  return (
+    <div className="min-h-screen scroll-smooth bg-gradient-to-b from-sky-50 via-white to-white text-slate-800">
+      {/* Decorative background */}
+      <div className="pointer-events-none fixed inset-0 -z-10">
+        <div className="absolute inset-0 bg-[radial-gradient(900px_400px_at_50%_-50%,rgba(56,189,248,0.18)_0%,rgba(255,255,255,0)_60%)]" />
+      </div>
+
+      {/* Header */}
+      <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/70 backdrop-blur">
+        <Container className="flex h-16 items-center justify-between">
+          <a href="#home" className="flex items-center gap-2 font-semibold tracking-tight">
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-sky-600 text-white shadow-sm">SD</span>
+            <span>{COMPANY_NAME}</span>
+          </a>
+          <nav className="hidden items-center gap-6 md:flex">
+            <NavLink href="#services">Services</NavLink>
+            <NavLink href="#approach">Approach</NavLink>
+            <NavLink href="#case-studies">Results</NavLink>
+            <NavLink href="#about">About</NavLink>
+            <NavLink href="#contact">Contact</NavLink>
+          </nav>
+          <a href={CTA_BOOK_LINK} className="ml-4 hidden rounded-xl bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-sky-700 md:inline-flex">
+            Book a discovery call
+          </a>
+        </Container>
+      </header>
+
+      {/* Hero */}
+      <section id="home" className="relative overflow-hidden pb-24 pt-16 sm:pt-24">
+        <Container className="grid items-center gap-12 lg:grid-cols-2">
+          <div>
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+              <Badge>
+                <Icon.Cloud className="h-4 w-4" /> {REGION}
+              </Badge>
+              <Badge>
+                <Icon.Database className="h-4 w-4" /> Snowflake Specialists
+              </Badge>
+              <Badge>
+                <Icon.Shield className="h-4 w-4" /> Secure by design
+              </Badge>
+            </div>
+            <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+              Modern data platforms on Snowflake—delivered fast and done right
+            </h1>
+            <p className="mt-5 max-w-xl text-lg text-slate-700">
+              We help mid‑market organizations migrate, build, and scale on Snowflake. From data engineering and governance
+              to cost optimization and AI/ML enablement, our experts turn data into outcomes in weeks, not months.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <a href="#contact" className="inline-flex items-center gap-2 rounded-xl bg-sky-600 px-5 py-3 font-semibold text-white shadow-sm hover:bg-sky-700">
+                Start your project <Icon.ArrowRight className="h-4 w-4" />
+              </a>
+              <a href="#case-studies" className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-800 hover:bg-slate-50">
+                See results
+              </a>
+            </div>
+            <div className="mt-10 grid max-w-xl grid-cols-3 gap-4">
+              <Stat value="6-10x" label="Faster time-to-value" />
+              <Stat value=">30%" label="Cost savings post-migration" />
+              <Stat value="2-6 wks" label="Typical first milestone" />
+            </div>
+          </div>
+
+          {/* Hero Visual */}
+          <div className="relative">
+            <div className="absolute -inset-4 -z-10 rounded-3xl bg-gradient-to-tr from-sky-100 via-white to-white blur-2xl" />
+            <Card className="relative">
+              <div className="mb-4 flex items-center gap-2 text-slate-500">
+                <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                <span className="text-xs">Snowflake environment • preview</span>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-xl bg-slate-50 p-4">
+                  <div className="mb-2 text-xs font-semibold text-slate-500">Warehouses</div>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-center justify-between"><span>INGEST_WH</span><span className="rounded bg-emerald-100 px-2 py-0.5 text-emerald-700">Auto‑scale</span></li>
+                    <li className="flex items-center justify-between"><span>TRANSFORM_WH</span><span className="rounded bg-sky-100 px-2 py-0.5 text-sky-700">Medium</span></li>
+                    <li className="flex items-center justify-between"><span>BI_WH</span><span className="rounded bg-purple-100 px-2 py-0.5 text-purple-700">Small</span></li>
+                  </ul>
+                </div>
+                <div className="rounded-xl bg-slate-50 p-4">
+                  <div className="mb-2 text-xs font-semibold text-slate-500">Governance</div>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-emerald-500"/> Row‑level policies</li>
+                    <li className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-emerald-500"/> Data classification</li>
+                    <li className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-emerald-500"/> Object tagging</li>
+                  </ul>
+                </div>
+                <div className="rounded-xl bg-slate-50 p-4 sm:col-span-2">
+                  <div className="mb-2 text-xs font-semibold text-slate-500">Pipeline snapshot</div>
+                  <div className="grid grid-cols-4 items-center gap-2 text-xs">
+                    <div className="rounded-lg bg-white p-3 text-center shadow">Sources</div>
+                    <div className="rounded-lg bg-white p-3 text-center shadow">Ingest</div>
+                    <div className="rounded-lg bg-white p-3 text-center shadow">Transform</div>
+                    <div className="rounded-lg bg-white p-3 text-center shadow">Publish</div>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </Container>
+      </section>
+
+      {/* Logos / social proof */}
+      <section aria-label="Trusted by" className="py-8">
+        <Container className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4 text-slate-500">
+          <span className="text-xs uppercase tracking-wider">Trusted by data-driven teams in finance, healthcare, retail, and energy</span>
+        </Container>
+      </section>
+
+      {/* Services */}
+      <section id="services" className="py-20">
+        <Container>
+          <SectionTitle
+            eyebrow="What we do"
+            title="Snowflake expertise from strategy to scale"
+            subtitle="Engage us for an end‑to‑end program or a targeted sprint. We meet you where you are and deliver measurable wins fast."
+          />
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <Card>
+              <div className="mb-3 flex items-center gap-3">
+                <Icon.Cloud className="h-6 w-6 text-sky-600" />
+                <h3 className="text-lg font-semibold">Migrations to Snowflake</h3>
+              </div>
+              <p className="mb-4 text-sm text-slate-600">Move from legacy warehouses (SQL Server, Oracle, Redshift, on‑prem) with near‑zero downtime. Right‑size compute and reduce costs.</p>
+              <ul className="space-y-2 text-sm text-slate-700">
+                <li className="flex items-center gap-2"><Icon.Check className="h-4 w-4" /> Assessment & TCO modeling</li>
+                <li className="flex items-center gap-2"><Icon.Check className="h-4 w-4" /> Schema & code conversion</li>
+              </ul>
+            </Card>
+            <Card>
+              <div className="mb-3 flex items-center gap-3">
+                <Icon.Database className="h-6 w-6 text-sky-600" />
+                <h3 className="text-lg font-semibold">Data Engineering & Pipelines</h3>
+              </div>
+              <p className="mb-4 text-sm text-slate-600">Batch and streaming pipelines using Snowpipe, tasks, and orchestration. Built for reliability, observability, and scale.</p>
+              <ul className="space-y-2 text-sm text-slate-700">
+                <li className="flex items-center gap-2"><Icon.Check className="h-4 w-4" /> ELT with dbt/SQL</li>
+                <li className="flex items-center gap-2"><Icon.Check className="h-4 w-4" /> CDC and streaming ingest</li>
+              </ul>
+            </Card>
+            <Card>
+              <div className="mb-3 flex items-center gap-3">
+                <Icon.Shield className="h-6 w-6 text-sky-600" />
+                <h3 className="text-lg font-semibold">Governance & Security</h3>
+              </div>
+              <p className="mb-4 text-sm text-slate-600">Implement tags, masking policies, RBAC, and lineage so your platform stays secure and compliant without slowing teams down.</p>
+              <ul className="space-y-2 text-sm text-slate-700">
+                <li className="flex items-center gap-2"><Icon.Check className="h-4 w-4" /> PII protection & auditability</li>
+                <li className="flex items-center gap-2"><Icon.Check className="h-4 w-4" /> Access patterns & roles</li>
+              </ul>
+            </Card>
+            <Card>
+              <div className="mb-3 flex items-center gap-3">
+                <Icon.Spark className="h-6 w-6 text-sky-600" />
+                <h3 className="text-lg font-semibold">Analytics, AI & Snowpark</h3>
+              </div>
+              <p className="mb-4 text-sm text-slate-600">Enable BI and ML with performant models, features, and secure data sharing. Keep data in‑platform with Snowpark Python.</p>
+              <ul className="space-y-2 text-sm text-slate-700">
+                <li className="flex items-center gap-2"><Icon.Check className="h-4 w-4" /> Feature engineering in‑database</li>
+                <li className="flex items-center gap-2"><Icon.Check className="h-4 w-4" /> BI models & semantic layers</li>
+              </ul>
+            </Card>
+            <Card>
+              <div className="mb-3 flex items-center gap-3">
+                <Icon.Database className="h-6 w-6 text-sky-600" />
+                <h3 className="text-lg font-semibold">Cost & Performance Optimization</h3>
+              </div>
+              <p className="mb-4 text-sm text-slate-600">Get control of spend without throttling innovation. Warehouse tuning, query optimization, and usage guardrails.</p>
+              <ul className="space-y-2 text-sm text-slate-700">
+                <li className="flex items-center gap-2"><Icon.Check className="h-4 w-4" /> Resource monitors & auto‑suspend</li>
+                <li className="flex items-center gap-2"><Icon.Check className="h-4 w-4" /> Materialization & caching strategy</li>
+              </ul>
+            </Card>
+            <Card>
+              <div className="mb-3 flex items-center gap-3">
+                <Icon.Cloud className="h-6 w-6 text-sky-600" />
+                <h3 className="text-lg font-semibold">Managed Services & Enablement</h3>
+              </div>
+              <p className="mb-4 text-sm text-slate-600">Flexible SLAs and training to keep your platform healthy and your teams confident.</p>
+              <ul className="space-y-2 text-sm text-slate-700">
+                <li className="flex items-center gap-2"><Icon.Check className="h-4 w-4" /> Runbooks, monitoring, support</li>
+                <li className="flex items-center gap-2"><Icon.Check className="h-4 w-4" /> Workshops & hands‑on labs</li>
+              </ul>
+            </Card>
+          </div>
+        </Container>
+      </section>
+
+      {/* Approach */}
+      <section id="approach" className="bg-gradient-to-b from-white to-slate-50 py-20">
+        <Container>
+          <SectionTitle
+            eyebrow="Our approach"
+            title="Proven playbooks, tailored to your roadmap"
+            subtitle="Four disciplined phases deliver value quickly while keeping governance tight."
+          />
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {["Discover", "Design", "Deliver", "Drive"].map((step, i) => (
+              <Card key={step}>
+                <div className="mb-2 text-sm font-semibold text-sky-700">Step {i + 1}</div>
+                <h3 className="mb-2 text-lg font-semibold">{step}</h3>
+                <p className="text-sm text-slate-600">
+                  {[
+                    "Audit sources, stakeholders, and constraints. Define outcomes and success metrics.",
+                    "Blueprint target architecture, security model, and ingestion/transform patterns.",
+                    "Implement pipelines, models, and dashboards. Launch the first use cases.",
+                    "Enable teams, optimize cost/perf, and expand use cases with a clear backlog.",
+                  ][i]}
+                </p>
+              </Card>
+            ))}
+          </div>
+        </Container>
+      </section>
+
+      {/* Case Studies / Results */}
+      <section id="case-studies" className="py-20">
+        <Container>
+          <SectionTitle
+            eyebrow="Results"
+            title="Outcomes our clients care about"
+            subtitle="Here are sample results from recent Snowflake programs. Names available under NDA."
+          />
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <Card>
+              <div className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Retail & e‑commerce</div>
+              <h3 className="mb-2 text-lg font-semibold">Unified customer 360</h3>
+              <ul className="space-y-2 text-sm text-slate-700">
+                <li className="flex items-center gap-2"><Icon.Check className="h-4 w-4" /> 12 data sources integrated in 6 weeks</li>
+                <li className="flex items-center gap-2"><Icon.Check className="h-4 w-4" /> +18% campaign lift with better segmentation</li>
+                <li className="flex items-center gap-2"><Icon.Check className="h-4 w-4" /> Self‑serve metrics in BI layer</li>
+              </ul>
+            </Card>
+            <Card>
+              <div className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Healthcare</div>
+              <h3 className="mb-2 text-lg font-semibold">Secure data sharing</h3>
+              <ul className="space-y-2 text-sm text-slate-700">
+                <li className="flex items-center gap-2"><Icon.Check className="h-4 w-4" /> HIPAA‑aligned access controls</li>
+                <li className="flex items-center gap-2"><Icon.Check className="h-4 w-4" /> Vendor feeds via reader accounts</li>
+                <li className="flex items-center gap-2"><Icon.Check className="h-4 w-4" /> Hours → minutes refresh SLAs</li>
+              </ul>
+            </Card>
+            <Card>
+              <div className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Financial services</div>
+              <h3 className="mb-2 text-lg font-semibold">Risk analytics on Snowpark</h3>
+              <ul className="space-y-2 text-sm text-slate-700">
+                <li className="flex items-center gap-2"><Icon.Check className="h-4 w-4" /> 40× faster feature pipeline</li>
+                <li className="flex items-center gap-2"><Icon.Check className="h-4 w-4" /> Isolated compute for model training</li>
+                <li className="flex items-center gap-2"><Icon.Check className="h-4 w-4" /> Governance with tags & masking</li>
+              </ul>
+            </Card>
+          </div>
+        </Container>
+      </section>
+
+      {/* About */}
+      <section id="about" className="bg-slate-50 py-20">
+        <Container>
+          <SectionTitle
+            eyebrow="About"
+            title={`Why ${COMPANY_NAME}?`}
+            subtitle="We’re a senior team of architects, engineers, and analysts who’ve shipped dozens of Snowflake programs across industries."
+          />
+          <div className="grid items-start gap-6 lg:grid-cols-2">
+            <Card>
+              <h3 className="mb-2 text-lg font-semibold">Principles</h3>
+              <ul className="space-y-3 text-sm text-slate-700">
+                <li className="flex items-start gap-2"><Icon.Check className="mt-0.5 h-4 w-4" /> Value in <span className="font-semibold">90 days</span> or less</li>
+                <li className="flex items-start gap-2"><Icon.Check className="mt-0.5 h-4 w-4" /> <span className="font-semibold">Security by default</span>—least privilege, auditable, compliant</li>
+                <li className="flex items-start gap-2"><Icon.Check className="mt-0.5 h-4 w-4" /> <span className="font-semibold">Enablement</span>—we train your team as we build</li>
+              </ul>
+            </Card>
+            <Card>
+              <h3 className="mb-2 text-lg font-semibold">Typical toolchain</h3>
+              <div className="grid grid-cols-2 gap-3 text-sm text-slate-700">
+                <div className="rounded-xl bg-white p-3 shadow ring-1 ring-slate-200">Snowflake • Snowpipe • Tasks</div>
+                <div className="rounded-xl bg-white p-3 shadow ring-1 ring-slate-200">dbt • SQL • Python</div>
+                <div className="rounded-xl bg-white p-3 shadow ring-1 ring-slate-200">Airflow / Prefect / Azure Data Factory</div>
+                <div className="rounded-xl bg-white p-3 shadow ring-1 ring-slate-200">Power BI • Tableau • Looker</div>
+              </div>
+            </Card>
+          </div>
+        </Container>
+      </section>
+
+      {/* FAQ */}
+      <section className="py-20">
+        <Container>
+          <SectionTitle eyebrow="FAQ" title="Common questions" />
+          <div className="grid gap-6 md:grid-cols-2">
+            {[
+              {
+                q: "How fast can we get value?",
+                a: "Most clients see their first production use case in 2–6 weeks, with a 90‑day roadmap for expansion.",
+              },
+              {
+                q: "Can you work with our existing tools?",
+                a: "Yes. We integrate with your preferred orchestrator, CI/CD, and BI tools while standardizing best practices on Snowflake.",
+              },
+              { q: "Do you offer managed services?", a: "Absolutely. We provide flexible SLAs for monitoring, support, optimization, and enhancements." },
+              { q: "Which clouds do you support?", a: "Snowflake on AWS, Azure, and GCP. We’ll help you choose based on existing contracts, skills, and latency needs." },
+            ].map((item) => (
+              <Card key={item.q}><h3 className="mb-2 text-lg font-semibold">{item.q}</h3><p className="text-sm text-slate-700">{item.a}</p></Card>
+            ))}
+          </div>
+        </Container>
+      </section>
+
+      {/* Contact */}
+      <section id="contact" className="bg-gradient-to-b from-slate-50 to-white py-20">
+        <Container>
+          <SectionTitle
+            eyebrow="Let’s talk"
+            title="Ready to build on Snowflake?"
+            subtitle="Tell us about your goals. We’ll come back with a short plan and a fixed‑price starter engagement."
+          />
+          <div className="grid items-start gap-8 lg:grid-cols-2">
+            <Card>
+              <form onSubmit={(e) => { e.preventDefault(); alert("Thanks! We'll be in touch shortly."); }} className="space-y-4">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-1 block text-sm font-medium">Name</label>
+                    <input required className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 outline-none ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-sky-500" placeholder="Jane Doe" />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-sm font-medium">Work Email</label>
+                    <input required type="email" className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 outline-none ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-sky-500" placeholder="jane@company.com" />
+                  </div>
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium">Company</label>
+                  <input className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 outline-none ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-sky-500" placeholder="Acme Corp" />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium">What do you want to achieve?</label>
+                  <textarea rows={4} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 outline-none ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-sky-500" placeholder="e.g., Migrate to Snowflake, build a customer 360, reduce spend…" />
+                </div>
+                <button className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-sky-600 px-5 py-3 font-semibold text-white shadow-sm hover:bg-sky-700">
+                  Send message <Icon.ArrowRight className="h-4 w-4" />
+                </button>
+                <p className="text-xs text-slate-500">Or reach us directly at <a href={`mailto:${CONTACT_EMAIL}`} className="font-medium text-sky-700">{CONTACT_EMAIL}</a> • <a href={`tel:${CONTACT_PHONE}`} className="font-medium text-sky-700">{CONTACT_PHONE}</a></p>
+              </form>
+            </Card>
+            <div className="grid gap-6">
+              <Card>
+                <h3 className="mb-2 text-lg font-semibold">Getting started package</h3>
+                <p className="text-sm text-slate-700">Fixed‑price engagement to stand up your Snowflake environment with secure access, ingest two critical sources, and a first analytics use case.</p>
+                <ul className="mt-3 grid gap-2 text-sm text-slate-700 sm:grid-cols-2">
+                  <li className="flex items-center gap-2"><Icon.Check className="h-4 w-4" /> Environment hardening & RBAC</li>
+                  <li className="flex items-center gap-2"><Icon.Check className="h-4 w-4" /> Automated ingestion (Snowpipe/Tasks)</li>
+                  <li className="flex items-center gap-2"><Icon.Check className="h-4 w-4" /> dbt models + BI dashboard</li>
+                  <li className="flex items-center gap-2"><Icon.Check className="h-4 w-4" /> Cost guardrails & monitors</li>
+                </ul>
+              </Card>
+              <Card>
+                <h3 className="mb-2 text-lg font-semibold">Industries we serve</h3>
+                <div className="grid grid-cols-2 gap-2 text-sm text-slate-700 sm:grid-cols-3">
+                  {["Financial Services", "Healthcare", "Retail", "Manufacturing", "Energy", "SaaS"].map((i) => (
+                    <div key={i} className="rounded-xl bg-slate-50 px-3 py-2 text-center">{i}</div>
+                  ))}
+                </div>
+              </Card>
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-slate-200 bg-white py-10 text-sm">
+        <Container className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+          <div className="flex items-center gap-2 font-semibold"><span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-sky-600 text-white">SD</span>{COMPANY_NAME}</div>
+          <div className="text-center text-slate-600 sm:text-left">© {new Date().getFullYear()} {COMPANY_NAME}. All rights reserved.</div>
+          <div className="flex items-center gap-4 text-slate-600">
+            <a href="#services" className="hover:text-sky-700">Services</a>
+            <a href="#about" className="hover:text-sky-700">About</a>
+            <a href="#contact" className="hover:text-sky-700">Contact</a>
+          </div>
+        </Container>
+      </footer>
+    </div>
+  );
+}
